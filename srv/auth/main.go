@@ -6,8 +6,8 @@ import (
 	"log"
 	"time"
 
-	"examples/booking/data"
-	"examples/booking/srv/auth/proto"
+	"go-microservice-examples/data"
+	"go-microservice-examples/srv/auth/proto"
 
 	"context"
 	"golang.org/x/net/trace"

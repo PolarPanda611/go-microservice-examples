@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"log"
 
-	"examples/booking/data"
-	"examples/booking/srv/geo/proto"
 	"github.com/hailocab/go-geoindex"
+	"go-microservice-examples/data"
+	"go-microservice-examples/srv/geo/proto"
 
 	"context"
 	"golang.org/x/net/trace"

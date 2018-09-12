@@ -15,16 +15,16 @@ import (
 	"context"
 	"golang.org/x/net/trace"
 
-	"examples/booking/api/hotel/proto"
-	"examples/booking/srv/auth/proto"
-	"examples/booking/srv/geo/proto"
-	"examples/booking/srv/profile/proto"
-	"examples/booking/srv/rate/proto"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/client"
 	merr "github.com/micro/go-micro/errors"
 	"github.com/micro/go-micro/metadata"
 	"github.com/micro/go-micro/server"
+	"go-microservice-examples/api/hotel/proto"
+	"go-microservice-examples/srv/auth/proto"
+	"go-microservice-examples/srv/geo/proto"
+	"go-microservice-examples/srv/profile/proto"
+	"go-microservice-examples/srv/rate/proto"
 )
 
 const (

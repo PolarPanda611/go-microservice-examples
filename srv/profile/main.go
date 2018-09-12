@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"log"
 
-	"examples/booking/data"
-	"examples/booking/srv/profile/proto"
+	"go-microservice-examples/data"
+	"go-microservice-examples/srv/profile/proto"
 
 	"context"
 	"golang.org/x/net/trace"
