@@ -105,3 +105,14 @@ The JSON response:
     ]
 }
 ```
+
+
+
+##no docker 
+
+$ MICRO_REGISTRY=mdns micro api --handler=rpc
+
+$ MICRO_REGISTRY=mdns go run auth/auth.go 
+$ MICRO_REGISTRY=mdns go run auth/geo.go 
+$ MICRO_REGISTRY=mdns go run auth/profile.go 
+$ MICRO_REGISTRY=mdns go run auth/rate.go 
