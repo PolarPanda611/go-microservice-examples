@@ -10,9 +10,37 @@ import (
 	"context"
 	"golang.org/x/net/trace"
 
+	"fmt"
 	"github.com/micro/go-micro"
+	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/metadata"
+	"github.com/micro/go-micro/server"
 )
+
+type logWrapper struct {
+	client.Client
+}
+
+func (l *logWrapper) Call(ctx context.Context, req client.Request, rsp interface{}, opts ...client.CallOption) error {
+	md, _ := metadata.FromContext(ctx)
+	fmt.Printf("[Log Wrapper] ctx: %v service: %s method: %s\n", md, req.Service(), req.Method())
+	return l.Client.Call(ctx, req, rsp)
+}
+
+// Implements client.Wrapper as logWrapper
+func logWrap(c client.Client) client.Client {
+	return &logWrapper{c}
+}
+
+// Implements the server.HandlerWrapper
+func logHandlerWrapper(fn server.HandlerFunc) server.HandlerFunc {
+	return func(ctx context.Context, req server.Request, rsp interface{}) error {
+		fmt.Printf("[Log Wrapper] Before serving request method: %v\n", req.Method())
+		err := fn(ctx, req, rsp)
+		fmt.Println("[Log Wrapper] After serving request")
+		return err
+	}
+}
 
 type Profile struct {
 	hotels map[string]*profile.Hotel
@@ -51,6 +79,8 @@ func loadProfiles(path string) map[string]*profile.Hotel {
 
 func main() {
 	service := micro.NewService(
+		micro.Client(client.NewClient(client.Wrap(logWrap))),
+		micro.Server(server.NewServer(server.WrapHandler(logHandlerWrapper))),
 		micro.Name("go.micro.srv.profile"),
 	)
 

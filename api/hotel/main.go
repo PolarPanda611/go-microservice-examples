@@ -4,9 +4,11 @@ import (
 	"encoding/base64"
 	"errors"
 	_ "expvar"
+	"fmt"
 	"net/http"
 	_ "net/http/pprof"
 	"strings"
+	"time"
 
 	uuid "github.com/nu7hatch/gouuid"
 
@@ -22,12 +24,38 @@ import (
 	"github.com/micro/go-micro/client"
 	merr "github.com/micro/go-micro/errors"
 	"github.com/micro/go-micro/metadata"
+	"github.com/micro/go-micro/server"
 )
 
 const (
 	BASIC_SCHEMA  string = "Basic "
 	BEARER_SCHEMA string = "Bearer "
 )
+
+type logWrapper struct {
+	client.Client
+}
+
+func (l *logWrapper) Call(ctx context.Context, req client.Request, rsp interface{}, opts ...client.CallOption) error {
+	md, _ := metadata.FromContext(ctx)
+	fmt.Printf("[Log Wrapper] ctx: %v service: %s method: %s\n", md, req.Service(), req.Method())
+	return l.Client.Call(ctx, req, rsp)
+}
+
+// Implements client.Wrapper as logWrapper
+func logWrap(c client.Client) client.Client {
+	return &logWrapper{c}
+}
+
+// Implements the server.HandlerWrapper
+func logHandlerWrapper(fn server.HandlerFunc) server.HandlerFunc {
+	return func(ctx context.Context, req server.Request, rsp interface{}) error {
+		fmt.Printf("[Log Wrapper] Before serving request method: %v\n", req.Method())
+		err := fn(ctx, req, rsp)
+		fmt.Println("[Log Wrapper] After serving request")
+		return err
+	}
+}
 
 type profileResults struct {
 	hotels []*profile.Hotel
@@ -184,7 +212,11 @@ func main() {
 	}
 
 	service := micro.NewService(
+		micro.Client(client.NewClient(client.Wrap(logWrap))),
+		micro.Server(server.NewServer(server.WrapHandler(logHandlerWrapper))),
 		micro.Name("go.micro.api.hotel"),
+		micro.RegisterTTL(time.Second*3),
+		micro.RegisterInterval(time.Second*3),
 	)
 
 	service.Init()
